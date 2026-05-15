@@ -27,15 +27,17 @@ loadImg[name_, width_:Automatic] := With[
     True,
       Image[Import[p], ImageSize -> w]]];
 
-imgCell[name_, caption_String: ""] := Cell[
+imgCell[name_, caption_String: "", widthOverride_: Automatic] := Cell[
   BoxData[ToBoxes[
-    If[caption === "",
-       loadImg[name],
-       Column[{loadImg[name],
-               Pane[Style[caption, Italic, FontSize -> 10,
-                          FontFamily -> "Helvetica"],
-                    imgWidth, Alignment -> Center]},
-              Alignment -> Center, Spacings -> 0.6]]]],
+    With[{img = loadImg[name, If[widthOverride === Automatic, imgWidth, widthOverride]]},
+      If[caption === "",
+         img,
+         Column[{img,
+                 Pane[Style[caption, Italic, FontSize -> 10,
+                            FontFamily -> "Helvetica"],
+                      If[widthOverride === Automatic, imgWidth, widthOverride],
+                      Alignment -> Center]},
+                Alignment -> Center, Spacings -> 0.6]]]]],
   "Output", ShowCellLabel -> False,
   CellMargins -> {{0, 0}, {10, 14}}];
 
@@ -296,7 +298,7 @@ Hammersley (1968) constructed a sofa of area ", mathI[RowBox[{"\[Pi]","/","2","+
     "; Gerver (1992) refined this to an 18-arc shape of area ", mathI["2.21953"],
     ", and Baek (2024) recently proved that Gerver's sofa is optimal. This notebook reproduces a Gerver-class shape from scratch with a small Python optimiser (cubic-spline trajectory of the inner corner of the L; Nelder\[Dash]Mead on \[TildeTilde]20 parameters), gives a literal Wolfram-Language port of the same algorithm, sweeps the corridor bend angle across (0, \[Pi]) and reports the resulting areas, and ends with a short discussion of what changes (and what is open) in three dimensions."}],
     "Text"],
-  imgCell["sofa.png", "Figure 2. The optimised sofa (light blue), area \[TildeTilde] 2.2197, together with the inner-corner trajectory the optimiser discovered (dashed orange). Width 1, length 2 + 4/\[Pi] \[TildeTilde] 3.27. The sofa is essentially Gerver's shape."],
+  imgCell["sofa.png", "Figure 2. The optimised sofa (light blue), area \[TildeTilde] 2.2197, together with the inner-corner trajectory the optimiser discovered (dashed orange). Width 1, length 2 + 4/\[Pi] \[TildeTilde] 3.27. The sofa is essentially Gerver's shape.", 360],
 
   (* ====== Section 1: The puzzle ====== *)
   Cell["1. The puzzle", "Section"],
