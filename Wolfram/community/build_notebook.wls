@@ -41,10 +41,14 @@ imgCell[name_, caption_String: ""] := Cell[
 
 (* Code cells *)
 wlInput[code_String] := Cell[BoxData[code], "Input"];
+
+(* Python cells become real ExternalLanguage cells in the notebook \[LongDash]
+   evaluating them runs ExternalEvaluate["Python", ...] under the hood
+   through Wolfram's external-language interface. *)
 pyCell[code_String] := Cell[
-  BoxData[
-    StyleBox[code, FontFamily -> "Courier", FontSize -> 11]],
-  "Program", CellMargins -> {{20, 0}, {6, 6}}];
+  code, "ExternalLanguage",
+  CellEvaluationLanguage -> "Python",
+  CellMargins -> {{20, 0}, {6, 6}}];
 
 mathI[box_] := Cell[BoxData[FormBox[box, TraditionalForm]],
                     "InlineFormula", FontFamily -> "Times"];
@@ -359,7 +363,11 @@ Hammersley (1968) constructed a sofa of area ", mathI[RowBox[{"\[Pi]","/","2","+
   (* ====== Section 4: Python pipeline ====== *)
   Cell["4. A Python optimiser", "Section"],
   Cell[TextData[{
-    "Trading the two-parameter hand-tuned trajectory for a 10-point cubic spline lifts the area to a Gerver-class shape. The pipeline below \[LongDash] geometry + cubic-spline trajectory + Nelder\[Dash]Mead with warm-started restarts \[LongDash] runs in a few minutes and produces ", StyleBox["sofa.png", "Input"], " and ", StyleBox["sofa.gif", "Input"], ":"}], "Text"],
+    "Trading the two-parameter hand-tuned trajectory for a 10-point cubic spline lifts the area to a Gerver-class shape. The pipeline below is a real Wolfram ", StyleBox["ExternalLanguage", "Input"],
+    " Python cell \[LongDash] press shift-enter on it inside the notebook and Wolfram runs Python through ", StyleBox["ExternalEvaluate", "Input"],
+    " using whichever Python you've registered (",
+    StyleBox["RegisterExternalEvaluator[\"Python\", ...]", "Input"],
+    " if it's not configured yet). Geometry + cubic-spline trajectory + Nelder\[Dash]Mead with warm-started restarts \[LongDash] runs in a few minutes and produces ", StyleBox["sofa.png", "Input"], " and ", StyleBox["sofa.gif", "Input"], ":"}], "Text"],
   pyCell[pythonPipeline],
   Cell["Run the cell above and you reproduce Figure 1 (the corridor sweep) and Figure 2 (the static sofa with the inner-corner trajectory).",
        "Text"],
