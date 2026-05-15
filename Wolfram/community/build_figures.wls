@@ -213,83 +213,98 @@ makeFigure7[] := Module[{boundary, prism, cx, cy, frame, height = 1.0},
    Figure 6 / gerver_3d (3D animated sofa in the L-tube)
    =================================================================== *)
 
-(* The unit-square L-tube as a list of side-face polygons. *)
-ltubeFaces[arm_: 4.5, h_: 1.0] := Module[
-  {(* world L corridor in xy, then extruded to z in [0, h] *)
-   lpts, b, t},
-  lpts = {{-arm, 0}, {1, 0}, {1, -arm}, {0, -arm}, {0, 1}, {-arm, 1}, {-arm, 0}};
-  b = Append[#, 0] & /@ lpts;
-  t = Append[#, h] & /@ lpts;
+(* The unit-square L-tube as a list of side-face polygons, in the SAME
+   convention as the 2D optimiser: inner corner at (1, 1), outer corner
+   at (0, 0), arms extending in +x and +y from the corner. *)
+ltubeFaces[arm_: 4.5, h_: 1.0] := Module[{lpts, b, t},
+  lpts = {{0., 0.}, {arm, 0.}, {arm, 1.}, {1., 1.}, {1., arm}, {0., arm},
+          {0., 0.}};
+  b = Append[#, 0.] & /@ lpts;
+  t = Append[#, h]  & /@ lpts;
   {b, t, Table[Polygon[{b[[i]], b[[i + 1]], t[[i + 1]], t[[i]]}],
-    {i, 1, Length[lpts] - 1}]}];
+               {i, 1, Length[lpts] - 1}]}];
+
+(* Cubic spline trajectory like in build_notebook (kept local). *)
+evalCorner[ctrl_?MatrixQ, ths_List] := Module[
+  {m = Length[ctrl], cth, fx, fy},
+  cth = Subdivide[0., Pi/2., m - 1];
+  fx = Interpolation[Transpose[{cth, ctrl[[All, 1]]}], InterpolationOrder -> 3];
+  fy = Interpolation[Transpose[{cth, ctrl[[All, 2]]}], InterpolationOrder -> 3];
+  Transpose[{fx /@ ths, fy /@ ths}]];
+
+(* Lab-frame rigid motion: world = R p + t with R = Rz(theta) Ry(beta)
+   chosen so that the sofa-frame corner C(theta, 0.5) lands on the
+   world inner corner (1, 1, 0.5). *)
+labFrame[theta_, beta_, ctrl_] := Module[{Rz, Ry, R, c2, c3, t},
+  Rz = RotationMatrix[theta, {0, 0, 1}];
+  Ry = RotationMatrix[beta,  {0, 1, 0}];
+  R  = Rz . Ry;
+  c2 = First @ evalCorner[ctrl, {theta}];
+  c3 = {c2[[1]], c2[[2]], 0.5};
+  t  = {1., 1., 0.5} - R . c3;
+  {R, t}];
 
 makeGerver3D[] := Module[
-  {boundary, b, t3, b3, sides, cx, cy, tubeB, tubeT, tubeSides, h = 1.0},
+  {boundary, ctrl, R, tvec, b3, t3, sides, tubeB, tubeT, tubeSides, h = 1.0,
+   apply, thetaMid = Pi/4.},
   boundary = readCSV["boundary_90.csv"];
-  cx = Mean[boundary[[All, 1]]]; cy = Mean[boundary[[All, 2]]];
-  boundary = Transpose[{boundary[[All, 1]] - cx, boundary[[All, 2]] - cy}];
-  b3 = Append[#, 0] & /@ boundary;
-  t3 = Append[#, h] & /@ boundary;
+  ctrl     = readCSV["controls_90.csv"];
+  (* Sofa in 3D, sofa-fixed frame: extruded boundary, z in [0, 1]. *)
+  b3 = Append[#, 0.] & /@ boundary;
+  t3 = Append[#, h]  & /@ boundary;
+  (* Place the sofa at the midpoint of the motion (theta = pi/4, beta = 0),
+     so it actually sits at the corner of the L-tube. *)
+  {R, tvec} = labFrame[thetaMid, 0., ctrl];
+  apply[p_List] := R . p + tvec;
+  b3 = apply /@ b3; t3 = apply /@ t3;
   sides = Table[Polygon[{b3[[i]], b3[[i + 1]], t3[[i + 1]], t3[[i]]}],
-    {i, 1, Length[boundary] - 1}];
+                {i, 1, Length[b3] - 1}];
   {tubeB, tubeT, tubeSides} = ltubeFaces[];
   Export[FileNameJoin[{outDir, "gerver_3d.png"}],
     Graphics3D[{
       {Opacity[0.10, GrayLevel[0.8]],
        EdgeForm[Directive[GrayLevel[0.5], AbsoluteThickness[0.5]]],
        tubeSides, Polygon[tubeB], Polygon[tubeT]},
-      {Opacity[0.85, sofaFace],
+      {Opacity[0.9, sofaFace],
        EdgeForm[Directive[sofaEdge, AbsoluteThickness[0.6]]],
-       sides, Polygon[b3], Polygon[t3]}
-    }, PlotRange -> {{-3, 1.5}, {-3, 2}, {-0.1, 1.4}},
-      BoxRatios -> {1.5, 1.5, 0.5}, ViewPoint -> {2.8, -2.5, 1.6},
-      ImageSize -> 720, Background -> White,
-      Axes -> True, AxesLabel -> {"x", "y", "z"}],
+       sides, Polygon[b3], Polygon[t3]}},
+     PlotRange -> {{-0.5, 4.5}, {-0.5, 4.5}, {-0.1, 1.4}},
+     BoxRatios -> {1, 1, 0.32}, ViewPoint -> {3.0, -3.0, 2.0},
+     ImageSize -> 720, Background -> White,
+     Axes -> True, AxesLabel -> {"x", "y", "z"},
+     PlotLabel -> Style[
+       "extruded Gerver sofa at the bend (theta = pi/4); world inner corner at (1,1,0.5)", 11]],
     ImageResolution -> 160];
   Print["wrote gerver_3d.png"];
 ];
 
 makeFigure6[nFrames_: 50] := Module[
-  {boundary, traj, ctrl, thetas, frames, cx, cy, b3, t3, sides, tubeB, tubeT, tubeSides, h = 1.0},
+  {boundary, ctrl, thetas, frames, b3Base, t3Base, tubeB, tubeT, tubeSides,
+   h = 1.0},
   boundary = readCSV["boundary_90.csv"];
   ctrl     = readCSV["controls_90.csv"];
   thetas   = Subdivide[0.01, Pi/2 - 0.01, nFrames - 1];
-  (* For the world-frame animation, lift the 2D Gerver motion of Section 4
-     into the lab frame: rotation theta about world z, translated so that
-     the sofa-frame corner C(theta) sits at world (1, 1, 0.5). *)
-  trajFn[ctrlPts_, ths_] := Module[{m = Length[ctrlPts], cth, fx, fy},
-    cth = Subdivide[0., Pi/2., m - 1];
-    fx = Interpolation[Transpose[{cth, ctrlPts[[All, 1]]}], InterpolationOrder -> 3];
-    fy = Interpolation[Transpose[{cth, ctrlPts[[All, 2]]}], InterpolationOrder -> 3];
-    Transpose[{fx /@ ths, fy /@ ths}]];
-
   (* Body in sofa frame: extruded boundary at z in [0, 1]. *)
-  b3 = Append[#, 0.] & /@ boundary;
-  t3 = Append[#, h] & /@ boundary;
+  b3Base = Append[#, 0.] & /@ boundary;
+  t3Base = Append[#, h]  & /@ boundary;
   {tubeB, tubeT, tubeSides} = ltubeFaces[5.5, h];
 
   frames = Table[
-    Module[{theta = thetas[[k]], c2, c3, Rmat, transB, transT, transSides,
-            txform},
-      c2 = First @ trajFn[ctrl, {theta}];
-      c3 = {c2[[1]], c2[[2]], 0.5};
-      Rmat = RotationMatrix[theta, {0, 0, 1}];
-      txform[p_] := (Rmat . p) + ({1., 1., 0.5} - Rmat . c3);
-      transB = txform /@ b3;
-      transT = txform /@ t3;
-      transSides = Table[Polygon[{txform[b3[[i]]], txform[b3[[i + 1]]],
-                                   txform[t3[[i + 1]]], txform[t3[[i]]]}],
-        {i, 1, Length[boundary] - 1}];
+    Module[{theta = thetas[[k]], R, tvec, apply, b3, t3, sides},
+      {R, tvec} = labFrame[theta, 0., ctrl];
+      apply[p_List] := R . p + tvec;
+      b3 = apply /@ b3Base; t3 = apply /@ t3Base;
+      sides = Table[Polygon[{b3[[i]], b3[[i + 1]], t3[[i + 1]], t3[[i]]}],
+        {i, 1, Length[b3] - 1}];
       Graphics3D[{
         {Opacity[0.10, GrayLevel[0.8]],
          EdgeForm[Directive[GrayLevel[0.5], AbsoluteThickness[0.5]]],
          tubeSides, Polygon[tubeB], Polygon[tubeT]},
-        {Opacity[0.85, sofaFace],
+        {Opacity[0.9, sofaFace],
          EdgeForm[Directive[sofaEdge, AbsoluteThickness[0.5]]],
-         transSides, Polygon[transB], Polygon[transT]}
-      },
-        PlotRange -> {{-3, 5.5}, {-3, 5.5}, {-0.1, 1.4}},
-        BoxRatios -> {1, 1, 0.25}, ViewPoint -> {3.0, -3.0, 1.8},
+         sides, Polygon[b3], Polygon[t3]}},
+        PlotRange -> {{-0.5, 6.0}, {-0.5, 6.0}, {-0.1, 1.4}},
+        BoxRatios -> {1, 1, 0.22}, ViewPoint -> {3.0, -3.0, 1.8},
         ImageSize -> 640, Background -> White, Axes -> False,
         PlotLabel -> Style[StringForm["\[Theta] = ``\[Degree]",
           NumberForm[N[theta 180/Pi], {4, 1}]], 10]]],
