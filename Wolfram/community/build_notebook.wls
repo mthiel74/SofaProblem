@@ -360,14 +360,17 @@ Hammersley (1968) constructed a sofa of area ", mathI[RowBox[{"\[Pi]","/","2","+
     mathI["\[TildeTilde] 2.14"],
     " on a 2-unit-wide corridor (so ", mathI["\[TildeTilde] 2.14"], " on the unit-width problem after the divide-by-4). This is comfortably above the simple half-disk of radius 1 (area ", mathI[RowBox[{"\[Pi]","/","2"}]], ") but still short of Hammersley\[CloseCurlyQuote]s 2.207 \[LongDash] showing how much is left on the table once we move away from low-dimensional hand-tuned curves."}], "Text"],
 
-  (* ====== Section 4: Python pipeline ====== *)
-  Cell["4. A Python optimiser", "Section"],
+  (* ====== Section 4: Python pipeline (kept as a comparison baseline) ====== *)
+  Cell["4. A Python optimiser as a comparison baseline", "Section"],
   Cell[TextData[{
-    "Trading the two-parameter hand-tuned trajectory for a 10-point cubic spline lifts the area to a Gerver-class shape. The pipeline below is a real Wolfram ", StyleBox["ExternalLanguage", "Input"],
-    " Python cell \[LongDash] press shift-enter on it inside the notebook and Wolfram runs Python through ", StyleBox["ExternalEvaluate", "Input"],
-    " using whichever Python you've registered (",
-    StyleBox["RegisterExternalEvaluator[\"Python\", ...]", "Input"],
-    " if it's not configured yet). Geometry + cubic-spline trajectory + Nelder\[Dash]Mead with warm-started restarts \[LongDash] runs in a few minutes and produces ", StyleBox["sofa.png", "Input"], " and ", StyleBox["sofa.gif", "Input"], ":"}], "Text"],
+    "Before writing the Wolfram-native optimiser, it's useful to have an independent implementation in another language to compare against. We use Python through Wolfram's ",
+    StyleBox["ExternalLanguage", "Input"],
+    " interface: the cell below is a real ", StyleBox["ExternalLanguage", "Input"],
+    " Python cell, executed via ", StyleBox["ExternalEvaluate", "Input"],
+    " (requires ", StyleBox["RegisterExternalEvaluator[\"Python\", ...]", "Input"],
+    " if you haven't done it once already). The Wolfram-native version follows in Section 5, and we'll see that the two reach the same Gerver-class optimum to four decimals \[LongDash] confirmation that the algorithm, not the language, is what's doing the work."}], "Text"],
+  Cell[TextData[{
+    "The algorithm: geometry (corridor polygons + intersections) + cubic-spline trajectory through 10 control points + Nelder\[Dash]Mead with warm-started restarts. Run-time is a few minutes; the cell produces ", StyleBox["sofa.png", "Input"], " and ", StyleBox["sofa.gif", "Input"], " (Figures 1 and 2)."}], "Text"],
   pyCell[pythonPipeline],
   Cell["Run the cell above and you reproduce Figure 1 (the corridor sweep) and Figure 2 (the static sofa with the inner-corner trajectory).",
        "Text"],
@@ -513,8 +516,34 @@ RemoteBatchMapDownload[job]"],
     " by spending some slices' rotational budget asymmetrically. This is the open intuition."}], "Text"],
 
   Cell["A first numerical run: extruded Gerver in the tube", "Subsection"],
-  Cell["Build the trivial 3D construction \[LongDash] the 2D shape from Section 4 extruded as a unit-height prism \[LongDash] and slide it through the L-tube along the (lifted) 2D Gerver motion. The Python pipeline below produces the animation in Figure 6:", "Text"],
-  pyCell["import math, numpy as np\nfrom sofa_angle import evaluate_trajectory_alpha\n\n# Boundary of the 2D Gerver-class sofa (from Section 4).\nboundary = np.load('sweep_angles.npz', allow_pickle=True)['boundary_2']\nctrl    = np.load('sweep_angles.npz', allow_pickle=True)['controls_2']\n\n# Shoelace area of the closed 2D polygon.\nx, y = boundary[:, 0], boundary[:, 1]\narea = 0.5 * abs(np.sum(x * np.roll(y, -1) - np.roll(x, -1) * y))\nprint(f'2D Gerver-class area   = {area:.5f}')\nprint(f'Trivial 3D lower bound = area x 1 = {area:.5f}')\n\n# 3D rigid motion: lift the 2D Gerver rotation about the world inner\n# corner (1, 1) to z = 0.5 (the centre of the unit-square tube).\ndef lab_frame(theta, beta=0.0):\n    Rz = np.array([[ math.cos(theta), -math.sin(theta), 0],\n                   [ math.sin(theta),  math.cos(theta), 0],\n                   [               0,                0, 1]])\n    Ry = np.array([[ math.cos(beta),  0, math.sin(beta)],\n                   [               0, 1,              0],\n                   [-math.sin(beta),  0, math.cos(beta)]])\n    R = Rz @ Ry\n    c2 = evaluate_trajectory_alpha(ctrl, np.array([theta]), np.pi / 2.0)[0]\n    c3 = np.array([c2[0], c2[1], 0.5])\n    t  = np.array([1.0, 1.0, 0.5]) - R @ c3\n    return R, t\n\n# Sample the motion at e.g. 60 thetas and compose a rigid pose at each.\nthetas = np.linspace(0.01, np.pi/2 - 0.01, 60)\nposes  = [lab_frame(th, beta=0.0) for th in thetas]"],
+  Cell[TextData[{
+    "Build the trivial 3D construction \[LongDash] the 2D shape from Section 4 extruded as a unit-height prism \[LongDash] and slide it through the L-tube along the (lifted) 2D Gerver motion. ", StyleBox["ctrlBest", "Input"], " is the optimised 10\[Times]2 matrix of control points from \[Section]5; the cell below picks it up directly:"}], "Text"],
+  wlInput["(* Lift the 2D Gerver rotation about the world inner corner
+   (1, 1) into a 3D rigid motion. Rotation R = Rz(theta) . Ry(beta)
+   moves the sofa-frame corner C(theta, 0.5) to world (1, 1, 0.5),
+   so the floor at z = 0 and ceiling at z = 1 ride through the
+   tube unchanged when beta = 0. *)
+labFrame[\[Theta]_?NumericQ, \[Beta]_: 0.0] := Module[
+  {Rz, Ry, R, c2, c3, tvec},
+  Rz = RotationMatrix[\[Theta], {0, 0, 1}];
+  Ry = RotationMatrix[\[Beta], {0, 1, 0}];
+  R  = Rz . Ry;
+  c2 = First @ evalTraj[ctrlBest, {\[Theta]}];
+  c3 = {c2[[1]], c2[[2]], 0.5};
+  tvec = {1., 1., 0.5} - R . c3;
+  {R, tvec}
+];
+
+(* Sample 60 thetas and compose a rigid pose at each. *)
+thetas3D = Subdivide[0.01, Pi/2 - 0.01, 59];
+poses    = labFrame /@ thetas3D;
+
+(* Volume of the trivial 3D construction = 2D Gerver area, since the
+   prism height is 1 by construction. *)
+gerver2DArea = Area @ buildSofa[
+   evalTraj[ctrlBest, Subdivide[0., Pi/2., 199]],
+   Subdivide[0., Pi/2., 199]];
+Print[\"Trivial 3D lower bound  V = area x 1 = \", gerver2DArea];"],
 
   imgCell["sofa_3d.gif", "Figure 6. The trivial 3D construction (extruded Gerver sofa) traversing the unit-square L-tube. Pure 2D motion in (x, y); the prism rides flat through the corner. Volume = 2D area \[Times] 1 = 2.21973."],
 
