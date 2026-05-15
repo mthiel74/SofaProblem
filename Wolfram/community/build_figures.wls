@@ -244,50 +244,74 @@ labFrame[theta_, beta_, ctrl_] := Module[{Rz, Ry, R, c2, c3, t},
   t  = {1., 1., 0.5} - R . c3;
   {R, t}];
 
+(* Compute the sofa-frame theta at which the sofa is most centred at
+   the bend (i.e. (sofa-frame centroid -> world (1, 1)) is solved by
+   the labFrame translation). We just pick the theta whose C(theta) is
+   closest to the 2D-sofa centroid; that puts the centroid right at the
+   world inner corner and the rendering is naturally centred. *)
+bestCenteringTheta[boundary_?MatrixQ, ctrl_?MatrixQ] := Module[
+  {centroid, thetas, corners, dists},
+  centroid = Mean[boundary];
+  thetas = Subdivide[0., Pi/2., 200];
+  corners = evalCorner[ctrl, thetas];
+  dists = Norm /@ ((# - centroid) & /@ corners);
+  thetas[[First @ Ordering[dists, 1]]]
+];
+
 makeGerver3D[] := Module[
   {boundary, ctrl, R, tvec, b3, t3, sides, tubeB, tubeT, tubeSides, h = 1.0,
-   apply, thetaMid = Pi/4.},
+   apply, thetaMid, arm = 3.5, cx, cy},
   boundary = readCSV["boundary_90.csv"];
   ctrl     = readCSV["controls_90.csv"];
+  thetaMid = bestCenteringTheta[boundary, ctrl];
+
   (* Sofa in 3D, sofa-fixed frame: extruded boundary, z in [0, 1]. *)
   b3 = Append[#, 0.] & /@ boundary;
   t3 = Append[#, h]  & /@ boundary;
-  (* Place the sofa at the midpoint of the motion (theta = pi/4, beta = 0),
-     so it actually sits at the corner of the L-tube. *)
+  (* Lab-frame transform: sofa-frame C(theta) -> world (1, 1, 0.5). *)
   {R, tvec} = labFrame[thetaMid, 0., ctrl];
   apply[p_List] := R . p + tvec;
   b3 = apply /@ b3; t3 = apply /@ t3;
   sides = Table[Polygon[{b3[[i]], b3[[i + 1]], t3[[i + 1]], t3[[i]]}],
                 {i, 1, Length[b3] - 1}];
-  {tubeB, tubeT, tubeSides} = ltubeFaces[];
+
+  (* Shorter-arm L-tube so the bend dominates the view. *)
+  {tubeB, tubeT, tubeSides} = ltubeFaces[arm, h];
+
+  (* Centre the camera on the sofa's projected centroid. *)
+  cx = Mean[b3[[All, 1]]]; cy = Mean[b3[[All, 2]]];
   Export[FileNameJoin[{outDir, "gerver_3d.png"}],
     Graphics3D[{
-      {Opacity[0.10, GrayLevel[0.8]],
-       EdgeForm[Directive[GrayLevel[0.5], AbsoluteThickness[0.5]]],
+      {Opacity[0.16, GrayLevel[0.85]],
+       EdgeForm[Directive[GrayLevel[0.4], AbsoluteThickness[0.6]]],
        tubeSides, Polygon[tubeB], Polygon[tubeT]},
-      {Opacity[0.9, sofaFace],
+      {Opacity[0.92, sofaFace],
        EdgeForm[Directive[sofaEdge, AbsoluteThickness[0.6]]],
        sides, Polygon[b3], Polygon[t3]}},
-     PlotRange -> {{-0.5, 4.5}, {-0.5, 4.5}, {-0.1, 1.4}},
-     BoxRatios -> {1, 1, 0.32}, ViewPoint -> {3.0, -3.0, 2.0},
+     PlotRange -> {{cx - 2.5, cx + 2.5}, {cy - 2.5, cy + 2.5}, {-0.2, 1.4}},
+     BoxRatios -> {1, 1, 0.3}, ViewPoint -> {0., 0., 5.0},
+     ViewVertical -> {0, 1, 0},
      ImageSize -> 720, Background -> White,
-     Axes -> True, AxesLabel -> {"x", "y", "z"},
+     Boxed -> False, Axes -> False,
      PlotLabel -> Style[
-       "extruded Gerver sofa at the bend (theta = pi/4); world inner corner at (1,1,0.5)", 11]],
+       "Extruded Gerver sofa centred at the bend (theta \[TildeTilde] pi/4); 2D area = 2.2197", 11]],
     ImageResolution -> 160];
   Print["wrote gerver_3d.png"];
 ];
 
 makeFigure6[nFrames_: 50] := Module[
   {boundary, ctrl, thetas, frames, b3Base, t3Base, tubeB, tubeT, tubeSides,
-   h = 1.0},
+   h = 1.0, arm = 4.0, cx, cy},
   boundary = readCSV["boundary_90.csv"];
   ctrl     = readCSV["controls_90.csv"];
   thetas   = Subdivide[0.01, Pi/2 - 0.01, nFrames - 1];
-  (* Body in sofa frame: extruded boundary at z in [0, 1]. *)
   b3Base = Append[#, 0.] & /@ boundary;
   t3Base = Append[#, h]  & /@ boundary;
-  {tubeB, tubeT, tubeSides} = ltubeFaces[5.5, h];
+  {tubeB, tubeT, tubeSides} = ltubeFaces[arm, h];
+
+  (* Compute a centre point for the whole animation: world inner corner
+     (1, 1) is the natural centre. *)
+  cx = 1.0; cy = 1.0;
 
   frames = Table[
     Module[{theta = thetas[[k]], R, tvec, apply, b3, t3, sides},
@@ -297,17 +321,19 @@ makeFigure6[nFrames_: 50] := Module[
       sides = Table[Polygon[{b3[[i]], b3[[i + 1]], t3[[i + 1]], t3[[i]]}],
         {i, 1, Length[b3] - 1}];
       Graphics3D[{
-        {Opacity[0.10, GrayLevel[0.8]],
-         EdgeForm[Directive[GrayLevel[0.5], AbsoluteThickness[0.5]]],
+        {Opacity[0.16, GrayLevel[0.85]],
+         EdgeForm[Directive[GrayLevel[0.4], AbsoluteThickness[0.6]]],
          tubeSides, Polygon[tubeB], Polygon[tubeT]},
-        {Opacity[0.9, sofaFace],
+        {Opacity[0.92, sofaFace],
          EdgeForm[Directive[sofaEdge, AbsoluteThickness[0.5]]],
          sides, Polygon[b3], Polygon[t3]}},
-        PlotRange -> {{-0.5, 6.0}, {-0.5, 6.0}, {-0.1, 1.4}},
-        BoxRatios -> {1, 1, 0.22}, ViewPoint -> {3.0, -3.0, 1.8},
-        ImageSize -> 640, Background -> White, Axes -> False,
+        PlotRange -> {{cx - 3.0, cx + 3.0}, {cy - 3.0, cy + 3.0}, {-0.2, 1.4}},
+        BoxRatios -> {1, 1, 0.27}, ViewPoint -> {0., 0., 5.0},
+        ViewVertical -> {0, 1, 0},
+        ImageSize -> 640, Background -> White,
+        Boxed -> False, Axes -> False,
         PlotLabel -> Style[StringForm["\[Theta] = ``\[Degree]",
-          NumberForm[N[theta 180/Pi], {4, 1}]], 10]]],
+          NumberForm[N[theta 180/Pi], {4, 1}]], 11]]],
     {k, nFrames}];
 
   Export[FileNameJoin[{outDir, "sofa_3d.gif"}], frames,
