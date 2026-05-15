@@ -279,6 +279,9 @@ the higher-dimensional generalisation.",
                    ButtonData -> {URL["https://github.com/mthiel74/SofaProblem"], None}]}],
        "Text", TextAlignment -> Center, FontSlant -> Italic],
 
+  (* Hook: the optimised sofa sweeping through the corner. *)
+  imgCell["sofa.gif", "Figure 1. The numerically optimised sofa (blue) sweeping through a unit-width L-corridor. The orange L is the corridor in the sofa-fixed frame as it rotates from \[Theta] = 0\[Degree] (fully in the horizontal arm) to \[Theta] = 90\[Degree] (fully in the vertical arm). Its area, 2.2197, matches Gerver's known optimum to four decimals. The rest of the notebook explains how the optimiser found this shape, sweeps the bend angle across (0, \[Pi]), and tries a first numerical attack on the 3D analogue."],
+
   (* ====== Abstract ====== *)
   Cell["Abstract", "Section"],
   Cell[TextData[{
@@ -289,7 +292,7 @@ Hammersley (1968) constructed a sofa of area ", mathI[RowBox[{"\[Pi]","/","2","+
     "; Gerver (1992) refined this to an 18-arc shape of area ", mathI["2.21953"],
     ", and Baek (2024) recently proved that Gerver's sofa is optimal. This notebook reproduces a Gerver-class shape from scratch with a small Python optimiser (cubic-spline trajectory of the inner corner of the L; Nelder\[Dash]Mead on \[TildeTilde]20 parameters), gives a literal Wolfram-Language port of the same algorithm, sweeps the corridor bend angle across (0, \[Pi]) and reports the resulting areas, and ends with a short discussion of what changes (and what is open) in three dimensions."}],
     "Text"],
-  imgCell["sofa.png", "Figure 1. The optimised sofa (light blue), area \[TildeTilde] 2.2197, together with the inner-corner trajectory the optimiser discovered (dashed orange). Width 1, length 2 + 4/\[Pi] \[TildeTilde] 3.27. The sofa is essentially Gerver's shape."],
+  imgCell["sofa.png", "Figure 2. The optimised sofa (light blue), area \[TildeTilde] 2.2197, together with the inner-corner trajectory the optimiser discovered (dashed orange). Width 1, length 2 + 4/\[Pi] \[TildeTilde] 3.27. The sofa is essentially Gerver's shape."],
 
   (* ====== Section 1: The puzzle ====== *)
   Cell["1. The puzzle", "Section"],
@@ -358,9 +361,8 @@ Hammersley (1968) constructed a sofa of area ", mathI[RowBox[{"\[Pi]","/","2","+
   Cell[TextData[{
     "Trading the two-parameter hand-tuned trajectory for a 10-point cubic spline lifts the area to a Gerver-class shape. The pipeline below \[LongDash] geometry + cubic-spline trajectory + Nelder\[Dash]Mead with warm-started restarts \[LongDash] runs in a few minutes and produces ", StyleBox["sofa.png", "Input"], " and ", StyleBox["sofa.gif", "Input"], ":"}], "Text"],
   pyCell[pythonPipeline],
-  Cell["Animation of the result \[LongDash] the L-corridor sweeping over the sofa in the sofa-fixed frame:",
+  Cell["Run the cell above and you reproduce Figure 1 (the corridor sweep) and Figure 2 (the static sofa with the inner-corner trajectory).",
        "Text"],
-  imgCell["sofa.gif", "Figure 2. As \[Theta] runs from 0\[Degree] to 90\[Degree] (corridor rotating in the sofa-fixed frame), the orange-shaded L sweeps over the blue sofa. The sofa is fully contained in every frame."],
   Cell[TextData[{
     "The honest area evaluated at 1600 \[Theta] samples is ",
     StyleBox["2.21968", FontWeight -> Bold],
