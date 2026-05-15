@@ -39,7 +39,8 @@ imgCell[name_, caption_String: "", widthOverride_: Automatic] := Cell[
                       Alignment -> Center]},
                 Alignment -> Center, Spacings -> 0.6]]]]],
   "Output", ShowCellLabel -> False,
-  CellMargins -> {{0, 0}, {10, 14}}];
+  TextAlignment -> Center,
+  CellMargins -> {{Inherited, Inherited}, {10, 14}}];
 
 (* Code cells *)
 wlInput[code_String] := Cell[BoxData[code], "Input"];
