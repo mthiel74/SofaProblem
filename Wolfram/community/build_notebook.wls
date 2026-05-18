@@ -16,23 +16,28 @@ imgDir = hereDir;            (* gif / png live next to the script *)
 imgWidth = 680;
 
 (* GIF -> AnimatedImage helper, following the canonical Community recipe
-   (Marco's TrafficJAms post, https://community.wolfram.com/groups/-/m/t/3701293):
-   the Community server-side HTML pre-render only preserves AnimatedImage
-   as a looping <img>; ListAnimate / Manipulate get replaced by a static
-   screenshot. Subsample frames so the .nb stays small but the loop is
-   still smooth. *)
-$animFramesPerGif = <|
-  "sofa.gif"         -> 60,
-  "sweep.gif"        -> 50,
-  "sofa_3d.gif"      -> 40,
-  "sofa_3d_tilt.gif" -> 40
-|>;
+   (see [[reference-wolfram-community-animations]] and Marco's
+   TrafficJAms post, https://community.wolfram.com/groups/-/m/t/3701293):
+   the &[Wolfram Notebook][...] submission deploys the .nb to the
+   cloud and re-emits each cell server-side. Only AnimatedImage with
+   frames already evaluated to a list of Images survives this step
+   (it becomes a looping <img>). Video[], ListAnimate, Manipulate,
+   DynamicModule, and unevaluated AnimatedImage[Import[gif]] all
+   collapse to a static frame or typeset expression.
+
+   Frame cap stays HIGH so we never subsample below the source frame
+   count; stride only kicks in if a future GIF exceeds the cap.
+   ColorQuantize[256] halves byte size with no visible loss on
+   scientific plots (memory advises engaging only when bytes matter;
+   we engage by default here to keep the .nb under the Community
+   attachment cap with all four GIFs at full frame count). *)
 $animFrameRate = <|
   "sofa.gif"         -> 12,
-  "sweep.gif"        -> 8,
+  "sweep.gif"        -> 4,
   "sofa_3d.gif"      -> 10,
   "sofa_3d_tilt.gif" -> 10
 |>;
+$animFrameCap = 80;
 
 loadImg[name_, width_:Automatic] := With[
   {p = FileNameJoin[{imgDir, name}], w = If[width === Automatic, imgWidth, width]},
@@ -41,11 +46,11 @@ loadImg[name_, width_:Automatic] := With[
       Style["[missing image: " <> name <> "]", Red],
     ToLowerCase[FileExtension[p]] === "gif",
       With[{frames = Import[p, {"GIF", "ImageList"}],
-            cap = Lookup[$animFramesPerGif, name, 40],
             rate = Lookup[$animFrameRate, name, 10]},
-        With[{stride = Max[1, Ceiling[Length[frames] / cap]]},
+        With[{stride = Max[1, Ceiling[Length[frames] / $animFrameCap]]},
           AnimatedImage[
-            ImageResize[#, {w}] & /@ frames[[1 ;; -1 ;; stride]],
+            ColorQuantize[ImageResize[#, {w}], 256] & /@
+              frames[[1 ;; -1 ;; stride]],
             FrameRate -> rate,
             AnimationRunning -> True,
             AnimationRepetitions -> Infinity]]],

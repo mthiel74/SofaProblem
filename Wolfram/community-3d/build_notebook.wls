@@ -6,11 +6,11 @@ hereDir = DirectoryName[
   If[$ScriptCommandLine =!= {}, $InputFileName, NotebookFileName[]]];
 imgWidth = 680;
 
-(* Canonical Community recipe (Marco's TrafficJAms post,
-   https://community.wolfram.com/groups/-/m/t/3701293):
-   wrap GIFs explicitly in AnimatedImage with FrameRate and
-   AnimationRunning -> True; the server-side pre-render only preserves
-   AnimatedImage as a looping <img>. *)
+(* Canonical Community recipe ([[reference-wolfram-community-animations]]):
+   the &[Wolfram Notebook][cloud-url] submission re-emits cells server
+   side; only AnimatedImage with frames pre-evaluated to a list of
+   Images survives. Frames are pre-resized and ColorQuantize'd to keep
+   the .nb under the Community per-attachment cap. *)
 loadImg[name_, width_:Automatic] := With[
   {p = FileNameJoin[{hereDir, name}], w = If[width === Automatic, imgWidth, width]},
   Which[
@@ -18,9 +18,10 @@ loadImg[name_, width_:Automatic] := With[
       Style["[missing image: " <> name <> "]", Red],
     ToLowerCase[FileExtension[p]] === "gif",
       With[{frames = Import[p, {"GIF", "ImageList"}]},
-        With[{stride = Max[1, Ceiling[Length[frames] / 60]]},
+        With[{stride = Max[1, Ceiling[Length[frames] / 80]]},
           AnimatedImage[
-            ImageResize[#, {w}] & /@ frames[[1 ;; -1 ;; stride]],
+            ColorQuantize[ImageResize[#, {w}], 256] & /@
+              frames[[1 ;; -1 ;; stride]],
             FrameRate -> 10,
             AnimationRunning -> True,
             AnimationRepetitions -> Infinity]]],
