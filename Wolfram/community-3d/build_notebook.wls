@@ -6,13 +6,24 @@ hereDir = DirectoryName[
   If[$ScriptCommandLine =!= {}, $InputFileName, NotebookFileName[]]];
 imgWidth = 680;
 
+(* Canonical Community recipe (Marco's TrafficJAms post,
+   https://community.wolfram.com/groups/-/m/t/3701293):
+   wrap GIFs explicitly in AnimatedImage with FrameRate and
+   AnimationRunning -> True; the server-side pre-render only preserves
+   AnimatedImage as a looping <img>. *)
 loadImg[name_, width_:Automatic] := With[
   {p = FileNameJoin[{hereDir, name}], w = If[width === Automatic, imgWidth, width]},
   Which[
     ! FileExistsQ[p],
       Style["[missing image: " <> name <> "]", Red],
     ToLowerCase[FileExtension[p]] === "gif",
-      ImageResize[Import[p, "AnimatedImage"], w],
+      With[{frames = Import[p, {"GIF", "ImageList"}]},
+        With[{stride = Max[1, Ceiling[Length[frames] / 60]]},
+          AnimatedImage[
+            ImageResize[#, {w}] & /@ frames[[1 ;; -1 ;; stride]],
+            FrameRate -> 10,
+            AnimationRunning -> True,
+            AnimationRepetitions -> Infinity]]],
     True,
       Image[Import[p], ImageSize -> w]]];
 
@@ -110,6 +121,12 @@ cells = {
 
   (* === Section 6: Summary === *)
   Cell["6. Summary", "Section"],
+  Cell[TextData[{
+    "Five geometric variants and three baselines in one table. The ",
+    StyleBox["fraction of Gerver", FontSlant -> Italic],
+    " column compares each setting to the classical 2D L-corridor optimum (",
+    mathI["2.21953"],
+    "); volumes are listed alongside areas because the 3D rows have units of volume, but the comparison still tells you how far below the planar baseline each construction lands."}], "Text"],
   Cell[BoxData[ToBoxes[
     Grid[{
       {Style["setting", Bold], Style["area / volume", Bold], Style["fraction of Gerver", Bold]},
@@ -129,7 +146,19 @@ cells = {
     "Output", ShowCellLabel -> False, TextAlignment -> Center],
 
   Cell[TextData[{
-    "The takeaway across all five settings is that the classical L-corridor is unusually friendly to the sofa: Gerver's 2.22 is bigger than anything we could pull out of (i) asymmetric L's, (ii) the disk-cross-section tube, (iii) any S-corridor, (iv) any multi-bend corridor, or (v) any convex restriction. The square cross-section, the right-angle bend, and the freedom to be non-convex each contribute meaningfully to the bound."}], "Text"]
+    StyleBox["Reading the table.", FontWeight -> Bold],
+    " Three blocks separate themselves out. ",
+    StyleBox["(1)", FontWeight -> Bold],
+    " The first three rows are the planar baseline plus our two optimisers; they reproduce Gerver to four decimals. ",
+    StyleBox["(2)", FontWeight -> Bold],
+    " The five middle rows are all variants of the planar problem (asymmetric, multi-bend, convex). Every one falls below Gerver: the asymmetric L drops with arm width (\[Section]1), two consecutive bends cut the area by more than half (\[Section]3), and the convex restriction loses roughly a factor of three (\[Section]5) \[LongDash] except the Gibbs analytical \[Pi]/2 row, where the gap to our 0.81 is the spline-parameterisation slack rather than a geometric loss. ",
+    StyleBox["(3)", FontWeight -> Bold],
+    " The three 3D rows: a disk-cross-section tube admits a 1.17 prism (achievable) up to a 1.81 slice-by-slice cap (unreachable in general), while a square-cross-section tube trivially extrudes to 2.22 \[LongDash] the cross-section shape alone is worth a 2\[Times] factor."}], "Text"],
+  Cell[TextData[{
+    StyleBox["The big takeaway:", FontWeight -> Bold],
+    " the classical L-corridor is unusually friendly to the sofa. Gerver's 2.22 is bigger than anything we could pull out of any of (i) asymmetric L's, (ii) the disk-cross-section tube, (iii) any S-corridor, (iv) any multi-bend corridor, or (v) any convex restriction. The square cross-section, the right-angle bend, and the freedom to be non-convex each contribute meaningfully to the planar bound. The new empirical fact added in \[Section]4 \[LongDash] that ",
+    mathI[RowBox[{"S","(","N",")","\[Rule]",RowBox[{"\[Pi]","/","4"}]}]],
+    " geometrically with ratio \[TildeTilde] 1/3 \[LongDash] gives an intuition for why: with enough bends, the disc is the only shape that fits, and 2.22 collapses to 0.79."}], "Text"]
 };
 
 nb = Notebook[cells,

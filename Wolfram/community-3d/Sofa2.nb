@@ -10,22 +10,22 @@
 NotebookFileLineBreakTest
 NotebookFileLineBreakTest
 NotebookDataPosition[       154,          7]
-NotebookDataLength[    666738,      11104]
-NotebookOptionsPosition[    663897,      11064]
-NotebookOutlinePosition[    664259,      11080]
-CellTagsIndexPosition[    664216,      11077]
+NotebookDataLength[    669216,      11157]
+NotebookOptionsPosition[    666178,      11115]
+NotebookOutlinePosition[    666540,      11131]
+CellTagsIndexPosition[    666497,      11128]
 WindowFrame->Normal*)
 
 (* Beginning of Notebook Content *)
 Notebook[{
 Cell["\<\
 Beyond Gerver: Numerical Explorations of the Moving-Sofa Problem\
-\>", "Title",ExpressionUUID->"c2ef72f8-7070-4930-8baa-7e23a0e6c06a"],
+\>", "Title",ExpressionUUID->"0301ed68-e12a-46c1-ada3-602afe63dbf9"],
 
 Cell["\<\
 Asymmetric corridors, S-bends, disk tubes, multi-bend scaling, and the convex \
 restriction\
-\>", "Subtitle",ExpressionUUID->"d98a6b4d-2fd3-4ca7-aa65-b2bcfddbe9c7"],
+\>", "Subtitle",ExpressionUUID->"d51c3c1a-aba4-4fe9-b71c-06447108efbc"],
 
 Cell[TextData[{
  "Marco Thiel, May 2026 \[LongDash] ",
@@ -35,9 +35,9 @@ Cell[TextData[{
     URL["https://github.com/mthiel74/SofaProblem"], None}]
 }], "Text",
  TextAlignment->Center,
- FontSlant->Italic,ExpressionUUID->"1b1e6be2-49f1-4a72-8f5c-5c6844e9f2fa"],
+ FontSlant->Italic,ExpressionUUID->"370b4d10-8c5a-431b-a193-f130175a9437"],
 
-Cell["Abstract", "Section",ExpressionUUID->"2b35c4cd-d296-4d7a-b7ad-7a209f2eee41"],
+Cell["Abstract", "Section",ExpressionUUID->"1dbe03f6-5413-4f11-acab-7ae53dc921f3"],
 
 Cell[TextData[{
  "A companion to the earlier post reproducing Gerver's 2D bound. Here we run \
@@ -53,17 +53,17 @@ traces a near-linear curve.\n",
  Cell[BoxData[
   FormBox["1.173", TraditionalForm]], "InlineFormula",
   FontFamily->"Times",ExpressionUUID->
-  "1607ca34-98ad-404f-bd27-a64210c01397"],
+  "ee263ab1-a369-45da-9d18-4b8ef1487a8c"],
  " and the slice-by-slice upper bound is ",
  Cell[BoxData[
   FormBox["1.808", TraditionalForm]], "InlineFormula",
   FontFamily->"Times",ExpressionUUID->
-  "0f3ab8a8-70bd-4c55-8634-24ff9bf52f30"],
+  "dcf847a2-2efa-4836-be09-f810b63a7e3e"],
  " (vs. ",
  Cell[BoxData[
   FormBox["2.220", TraditionalForm]], "InlineFormula",
   FontFamily->"Times",ExpressionUUID->
-  "04a5b550-8478-4300-a8be-edcee3532d5d"],
+  "25abc9e8-2a47-4a2e-9015-2534afeeb976"],
  " for a square cross-section).\n",
  StyleBox["(3)",
   FontWeight->Bold],
@@ -72,7 +72,7 @@ area ",
  Cell[BoxData[
   FormBox["1.013", TraditionalForm]], "InlineFormula",
   FontFamily->"Times",ExpressionUUID->
-  "edfb8ff1-fc85-4529-8304-778597bf97ee"],
+  "42db6cf9-cf44-4d1c-a87b-06f412624f5a"],
  ", and its shape collapses to a near-circular disc.\n",
  StyleBox["(4)",
   FontWeight->Bold],
@@ -83,17 +83,17 @@ area ",
  Cell[BoxData[
   FormBox["0.81", TraditionalForm]], "InlineFormula",
   FontFamily->"Times",ExpressionUUID->
-  "6fb5b5a1-0368-4590-a3db-be4015584355"],
+  "56f53fc5-52ad-47b2-835c-6c105465852a"],
  " against the classical analytical target of \[Pi]/2 \[TildeTilde] 1.57."
-}], "Text",ExpressionUUID->"7bc14e43-dab0-4913-848f-78003da0db5d"],
+}], "Text",ExpressionUUID->"e9cbf5db-9b88-4510-9629-fac63c9905e2"],
 
-Cell["1. Asymmetric L-corridor: area as a function of arm-2 width", "Section",ExpressionUUID->"54f75984-d4a1-452d-ba98-6528de322b28"],
+Cell["1. Asymmetric L-corridor: area as a function of arm-2 width", "Section",ExpressionUUID->"11f45575-e69e-4cc5-9e1d-83c03f0d859d"],
 
 Cell["\<\
 Take the classical L-corridor and shrink arm 2 to width w \[LessEqual] 1 \
 while leaving arm 1 at width 1. Inner walls still meet at (1, 1). At w = 1 we \
 recover Gerver; as w \[Rule] 0 the second arm becomes a slit. Sweep:\
-\>", "Text",ExpressionUUID->"9d6f67fa-dac4-46c8-a7f8-08268816ae99"],
+\>", "Text",ExpressionUUID->"6d0f2dfa-2738-4b42-90a8-3942505a0d96"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -1467,7 +1467,7 @@ lands well above 0, so the asymptotic shape near w = 0 is sub-linear.\"\>",
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"7e5971dd-39ef-4a69-be5d-b6ac7c76c210"],
+ TextAlignment->Center,ExpressionUUID->"6cd4812e-6484-4c19-a457-a6bb3a0f1097"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -2519,9 +2519,9 @@ JEmSJEn63nF8AExyvGY=
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"0daf86aa-0ca9-4ad0-8e7f-6adbe490509c"],
+ TextAlignment->Center,ExpressionUUID->"21bb9091-bbdc-4278-bdf5-77dd92bb4754"],
 
-Cell["2. 3D L-tube with disk cross-section", "Section",ExpressionUUID->"c7f5f813-1b71-486e-92ed-3cb5eef1c404"],
+Cell["2. 3D L-tube with disk cross-section", "Section",ExpressionUUID->"7b572bd5-6bad-4de9-892a-4f779cbbc5ca"],
 
 Cell["\<\
 Replace the square cross-section by a disk of unit diameter. At height z \
@@ -2530,7 +2530,7 @@ the sofa is w(z) = 2\[Sqrt](1/4 - z\.b2). For a prismatic body of height h \
 centred in the disk, the cross-section width is constrained by the narrowest \
 slice, w = \[Sqrt](1 - h\.b2), and the volume is V(h) = h \[CenterDot] A(\
 \[Sqrt](1 - h\.b2)), using A(w) from Section 1.\
-\>", "Text",ExpressionUUID->"a719c78e-31f2-4679-a537-db55575ef935"],
+\>", "Text",ExpressionUUID->"64ecd36c-b8dd-4c35-bc3e-cc7e2a139162"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -4180,7 +4180,7 @@ square-tube extrusion at V = 2.22 is shown for comparison.\"\>",
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"ad395917-69fe-4682-9106-12f926c9a33f"],
+ TextAlignment->Center,ExpressionUUID->"0dc7da38-7bcf-4684-8d11-313b01bafebd"],
 
 Cell[TextData[{
  "Take-away: the disk-tube 3D sofa is ",
@@ -4189,16 +4189,16 @@ Cell[TextData[{
  " than the square-tube one in both achievable and upper-bound senses. The \
 square corners help \[LongDash] they let the sofa fill the corridor's \
 vertical clearance regardless of horizontal position."
-}], "Text",ExpressionUUID->"99a2794f-2bae-45dd-8fdf-b926c9ea7f61"],
+}], "Text",ExpressionUUID->"4b9ca544-88e3-4daf-98eb-3026605ac565"],
 
-Cell["3. The S-corridor: two consecutive 90\[Degree] bends", "Section",ExpressionUUID->"26cc1f85-95da-4c82-80bc-ab1dd3086980"],
+Cell["3. The S-corridor: two consecutive 90\[Degree] bends", "Section",ExpressionUUID->"b34f77ec-a83e-4efc-824b-5143faaf4faf"],
 
 Cell[TextData[{
  "Add a second left bend after the first. The corridor is now a stair: ",
  StyleBox["+", "Input"],
  "x \[Rule] +y \[Rule] -x. Total rotation is \[Pi]. Same optimiser, extended \
 to \[Theta] \[Element] [0, \[Pi]]:"
-}], "Text",ExpressionUUID->"db42ff26-6c18-4830-b658-1bab21313afb"],
+}], "Text",ExpressionUUID->"88342ca8-9ff8-4532-a6af-90d77b9011e3"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -5974,14 +5974,14 @@ above the unit disc \[Pi](0.6)\.b2 \[TildeTilde] 1.13.\"\>",
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"9ac80e67-eab6-4d4b-a3c1-5458c89b5eaf"],
+ TextAlignment->Center,ExpressionUUID->"ba9b9e81-1095-4479-85e8-bf4b967255cc"],
 
-Cell["4. N consecutive bends: scaling of S(N)", "Section",ExpressionUUID->"01ba560f-7a06-43e4-a396-3886e20987c3"],
+Cell["4. N consecutive bends: scaling of S(N)", "Section",ExpressionUUID->"567d7905-e6df-47ec-8e03-4c80c4cce36f"],
 
 Cell["\<\
 Push further: N consecutive 90\[Degree] left bends, total rotation N\[Pi]/2. \
 Run the optimiser for N = 1, 2, 3, 4 and see what the maximum area does.\
-\>", "Text",ExpressionUUID->"c1747873-3881-4887-b217-ff8871cd53e9"],
+\>", "Text",ExpressionUUID->"5f0662b8-47bc-45fc-90e5-37d21532f6ec"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -7426,7 +7426,7 @@ hBQOyQ==
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"36e61c81-6e84-4a0a-9eed-5287ac43904a"],
+ TextAlignment->Center,ExpressionUUID->"447b89d0-12d1-4222-9106-e9b3454fe474"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -10018,7 +10018,7 @@ every orientation. This is the asymptotic limit  S(N) \[Rule] \[Pi]/4  as N \
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"ce858cac-3d42-483e-b98b-742f10a73f2b"],
+ TextAlignment->Center,ExpressionUUID->"b7cf0a87-68b7-4f3e-bdb8-96fa74c2788d"],
 
 Cell[TextData[{
  StyleBox["A genuinely new empirical finding:",
@@ -10028,9 +10028,9 @@ geometrically toward the unit-disk area \[Pi]/4. Concretely the three \
 differences S(N) - \[Pi]/4 are 1.435, 0.230, 0.072, 0.024 for N = 1, 2, 3, 4: \
 ratios 0.160, 0.314, 0.336. The asymptotic shape is the disc \[LongDash] the \
 only body that fits a unit-width corridor independent of orientation."
-}], "Text",ExpressionUUID->"4e4e1d14-c6d9-45d3-bff7-643fbce73d0c"],
+}], "Text",ExpressionUUID->"a6fd36f7-e00a-427b-9e39-6185bf2d1eef"],
 
-Cell["5. Convex-only sofas", "Section",ExpressionUUID->"0e26770f-6d50-49af-8e07-91b4cb30ce69"],
+Cell["5. Convex-only sofas", "Section",ExpressionUUID->"bae893d4-94f3-4e50-89da-6eb566c0641f"],
 
 Cell[TextData[{
  "Constrain the sofa to be convex. Gibbs (1968) showed the supremum is ",
@@ -10038,12 +10038,12 @@ Cell[TextData[{
   FormBox[
    RowBox[{"\[Pi]", "/", "2"}], TraditionalForm]], "InlineFormula",
   FontFamily->"Times",ExpressionUUID->
-  "7206d740-4d47-4ba7-8e3c-f00074b810a5"],
+  "bd9e68d2-6cc7-47ca-a5e6-19e1678a6a6b"],
  " (the unit half-disc). Our optimiser, with a cubic-spline corner trajectory \
 and a convexity penalty, lands at 0.81 \[LongDash] significantly below the \
 analytical \[Pi]/2 = 1.57. The shape it finds is round-ish but not the \
 half-disc:"
-}], "Text",ExpressionUUID->"83f5d643-ed76-4592-9f41-00458d113b23"],
+}], "Text",ExpressionUUID->"1feee09a-19e4-4d2b-ab52-876dc9e81df7"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -11009,9 +11009,23 @@ dedicated convex parameterisation would close the gap to \[Pi]/2.\"\>",
   "Column"]], "Output",
  CellMargins->{{Inherited, Inherited}, {10, 14}},
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"69b4acb0-0f5e-4cce-9458-99b551aa3bbe"],
+ TextAlignment->Center,ExpressionUUID->"0e0c2563-6df4-4fc2-91ed-c06312b64ad1"],
 
-Cell["6. Summary", "Section",ExpressionUUID->"fd5f41cd-2eb2-4a77-9a12-812089a96591"],
+Cell["6. Summary", "Section",ExpressionUUID->"35a34f83-e2a3-4671-a909-7a7ea8b8c5ce"],
+
+Cell[TextData[{
+ "Five geometric variants and three baselines in one table. The ",
+ StyleBox["fraction of Gerver",
+  FontSlant->Italic],
+ " column compares each setting to the classical 2D L-corridor optimum (",
+ Cell[BoxData[
+  FormBox["2.21953", TraditionalForm]], "InlineFormula",
+  FontFamily->"Times",ExpressionUUID->
+  "315ad01f-2923-45f2-8ff8-b2ed40ee688d"],
+ "); volumes are listed alongside areas because the 3D rows have units of \
+volume, but the comparison still tells you how far below the planar baseline \
+each construction lands."
+}], "Text",ExpressionUUID->"cfdeec0d-ab5d-40b8-bfb2-1113d124d72b"],
 
 Cell[BoxData[
  TagBox[GridBox[{
@@ -11051,22 +11065,59 @@ Cell[BoxData[
    GridBoxItemSize->{"Columns" -> {{Automatic}}, "Rows" -> {{Automatic}}}],
   "Grid"]], "Output",
  ShowCellLabel->False,
- TextAlignment->Center,ExpressionUUID->"a8a6bef1-a659-4aef-b629-5928f848674a"],
+ TextAlignment->Center,ExpressionUUID->"c4200e7e-d077-42a2-9fe1-1c364d64938a"],
 
-Cell["\<\
-The takeaway across all five settings is that the classical L-corridor is \
-unusually friendly to the sofa: Gerver's 2.22 is bigger than anything we \
-could pull out of (i) asymmetric L's, (ii) the disk-cross-section tube, (iii) \
-any S-corridor, (iv) any multi-bend corridor, or (v) any convex restriction. \
-The square cross-section, the right-angle bend, and the freedom to be \
-non-convex each contribute meaningfully to the bound.\
-\>", "Text",ExpressionUUID->"b43b3248-61e9-4616-ae21-58a0af8c971f"]
+Cell[TextData[{
+ StyleBox["Reading the table.",
+  FontWeight->Bold],
+ " Three blocks separate themselves out. ",
+ StyleBox["(1)",
+  FontWeight->Bold],
+ " The first three rows are the planar baseline plus our two optimisers; they \
+reproduce Gerver to four decimals. ",
+ StyleBox["(2)",
+  FontWeight->Bold],
+ " The five middle rows are all variants of the planar problem (asymmetric, \
+multi-bend, convex). Every one falls below Gerver: the asymmetric L drops \
+with arm width (\[Section]1), two consecutive bends cut the area by more than \
+half (\[Section]3), and the convex restriction loses roughly a factor of \
+three (\[Section]5) \[LongDash] except the Gibbs analytical \[Pi]/2 row, \
+where the gap to our 0.81 is the spline-parameterisation slack rather than a \
+geometric loss. ",
+ StyleBox["(3)",
+  FontWeight->Bold],
+ " The three 3D rows: a disk-cross-section tube admits a 1.17 prism \
+(achievable) up to a 1.81 slice-by-slice cap (unreachable in general), while \
+a square-cross-section tube trivially extrudes to 2.22 \[LongDash] the \
+cross-section shape alone is worth a 2\[Times] factor."
+}], "Text",ExpressionUUID->"9dfef23e-0afc-4e2b-92cb-6d8576b74d48"],
+
+Cell[TextData[{
+ StyleBox["The big takeaway:",
+  FontWeight->Bold],
+ " the classical L-corridor is unusually friendly to the sofa. Gerver's 2.22 \
+is bigger than anything we could pull out of any of (i) asymmetric L's, (ii) \
+the disk-cross-section tube, (iii) any S-corridor, (iv) any multi-bend \
+corridor, or (v) any convex restriction. The square cross-section, the \
+right-angle bend, and the freedom to be non-convex each contribute \
+meaningfully to the planar bound. The new empirical fact added in \[Section]4 \
+\[LongDash] that ",
+ Cell[BoxData[
+  FormBox[
+   RowBox[{"S", "(", "N", ")", "\[Rule]", 
+    RowBox[{"\[Pi]", "/", "4"}]}], TraditionalForm]], "InlineFormula",
+  FontFamily->"Times",ExpressionUUID->
+  "29fb75d6-bb35-47cc-abc4-c1efd5a41540"],
+ " geometrically with ratio \[TildeTilde] 1/3 \[LongDash] gives an intuition \
+for why: with enough bends, the disc is the only shape that fits, and 2.22 \
+collapses to 0.79."
+}], "Text",ExpressionUUID->"7833cdef-ce24-4e95-a72a-dd7b7eb0d9a4"]
 },
 Saveable->True,
 WindowSize->{1100, 800},
 FrontEndVersion->"15.0 for Mac OS X ARM (64-bit) (October 27, 2025)",
 StyleDefinitions->"Default.nb",
-ExpressionUUID->"309ccce0-1920-4519-aa59-581fc0db14c6"
+ExpressionUUID->"a4249431-1084-4426-926e-8723cf7b3bef"
 ]
 (* End of Notebook Content *)
 
@@ -11079,33 +11130,35 @@ CellTagsIndex->{}
 *)
 (*NotebookFileOutline
 Notebook[{
-Cell[554, 20, 144, 2, 70, "Title",ExpressionUUID->"c2ef72f8-7070-4930-8baa-7e23a0e6c06a"],
-Cell[701, 24, 174, 3, 70, "Subtitle",ExpressionUUID->"d98a6b4d-2fd3-4ca7-aa65-b2bcfddbe9c7"],
-Cell[878, 29, 312, 8, 70, "Text",ExpressionUUID->"1b1e6be2-49f1-4a72-8f5c-5c6844e9f2fa"],
-Cell[1193, 39, 82, 0, 70, "Section",ExpressionUUID->"2b35c4cd-d296-4d7a-b7ad-7a209f2eee41"],
-Cell[1278, 41, 1868, 46, 70, "Text",ExpressionUUID->"7bc14e43-dab0-4913-848f-78003da0db5d"],
-Cell[3149, 89, 133, 0, 70, "Section",ExpressionUUID->"54f75984-d4a1-452d-ba98-6528de322b28"],
-Cell[3285, 91, 302, 4, 70, "Text",ExpressionUUID->"9d6f67fa-dac4-46c8-a7f8-08268816ae99"],
-Cell[3590, 97, 82858, 1372, 70, "Output",ExpressionUUID->"7e5971dd-39ef-4a69-be5d-b6ac7c76c210"],
-Cell[86451, 1471, 63123, 1050, 70, "Output",ExpressionUUID->"0daf86aa-0ca9-4ad0-8e7f-6adbe490509c"],
-Cell[149577, 2523, 110, 0, 70, "Section",ExpressionUUID->"c7f5f813-1b71-486e-92ed-3cb5eef1c404"],
-Cell[149690, 2525, 511, 7, 70, "Text",ExpressionUUID->"a719c78e-31f2-4679-a537-db55575ef935"],
-Cell[150204, 2534, 99605, 1648, 70, "Output",ExpressionUUID->"ad395917-69fe-4682-9106-12f926c9a33f"],
-Cell[249812, 4184, 379, 7, 70, "Text",ExpressionUUID->"99a2794f-2bae-45dd-8fdf-b926c9ea7f61"],
-Cell[250194, 4193, 126, 0, 70, "Section",ExpressionUUID->"26cc1f85-95da-4c82-80bc-ab1dd3086980"],
-Cell[250323, 4195, 296, 5, 70, "Text",ExpressionUUID->"db42ff26-6c18-4830-b658-1bab21313afb"],
-Cell[250622, 4202, 107279, 1774, 70, "Output",ExpressionUUID->"9ac80e67-eab6-4d4b-a3c1-5458c89b5eaf"],
-Cell[357904, 5978, 113, 0, 70, "Section",ExpressionUUID->"01ba560f-7a06-43e4-a396-3886e20987c3"],
-Cell[358020, 5980, 230, 3, 70, "Text",ExpressionUUID->"c1747873-3881-4887-b217-ff8871cd53e9"],
-Cell[358253, 5985, 87107, 1443, 70, "Output",ExpressionUUID->"36e61c81-6e84-4a0a-9eed-5287ac43904a"],
-Cell[445363, 7430, 157137, 2590, 70, "Output",ExpressionUUID->"ce858cac-3d42-483e-b98b-742f10a73f2b"],
-Cell[602503, 10022, 528, 8, 70, "Text",ExpressionUUID->"4e4e1d14-c6d9-45d3-bff7-643fbce73d0c"],
-Cell[603034, 10032, 94, 0, 70, "Section",ExpressionUUID->"0e26770f-6d50-49af-8e07-91b4cb30ce69"],
-Cell[603131, 10034, 574, 11, 70, "Text",ExpressionUUID->"83f5d643-ed76-4592-9f41-00458d113b23"],
-Cell[603708, 10047, 57864, 964, 70, "Output",ExpressionUUID->"69b4acb0-0f5e-4cce-9458-99b551aa3bbe"],
-Cell[661575, 11013, 84, 0, 70, "Section",ExpressionUUID->"fd5f41cd-2eb2-4a77-9a12-812089a96591"],
-Cell[661662, 11015, 1714, 38, 70, "Output",ExpressionUUID->"a8a6bef1-a659-4aef-b629-5928f848674a"],
-Cell[663379, 11055, 514, 7, 70, "Text",ExpressionUUID->"b43b3248-61e9-4616-ae21-58a0af8c971f"]
+Cell[554, 20, 144, 2, 70, "Title",ExpressionUUID->"0301ed68-e12a-46c1-ada3-602afe63dbf9"],
+Cell[701, 24, 174, 3, 70, "Subtitle",ExpressionUUID->"d51c3c1a-aba4-4fe9-b71c-06447108efbc"],
+Cell[878, 29, 312, 8, 70, "Text",ExpressionUUID->"370b4d10-8c5a-431b-a193-f130175a9437"],
+Cell[1193, 39, 82, 0, 70, "Section",ExpressionUUID->"1dbe03f6-5413-4f11-acab-7ae53dc921f3"],
+Cell[1278, 41, 1868, 46, 70, "Text",ExpressionUUID->"e9cbf5db-9b88-4510-9629-fac63c9905e2"],
+Cell[3149, 89, 133, 0, 70, "Section",ExpressionUUID->"11f45575-e69e-4cc5-9e1d-83c03f0d859d"],
+Cell[3285, 91, 302, 4, 70, "Text",ExpressionUUID->"6d0f2dfa-2738-4b42-90a8-3942505a0d96"],
+Cell[3590, 97, 82858, 1372, 70, "Output",ExpressionUUID->"6cd4812e-6484-4c19-a457-a6bb3a0f1097"],
+Cell[86451, 1471, 63123, 1050, 70, "Output",ExpressionUUID->"21bb9091-bbdc-4278-bdf5-77dd92bb4754"],
+Cell[149577, 2523, 110, 0, 70, "Section",ExpressionUUID->"7b572bd5-6bad-4de9-892a-4f779cbbc5ca"],
+Cell[149690, 2525, 511, 7, 70, "Text",ExpressionUUID->"64ecd36c-b8dd-4c35-bc3e-cc7e2a139162"],
+Cell[150204, 2534, 99605, 1648, 70, "Output",ExpressionUUID->"0dc7da38-7bcf-4684-8d11-313b01bafebd"],
+Cell[249812, 4184, 379, 7, 70, "Text",ExpressionUUID->"4b9ca544-88e3-4daf-98eb-3026605ac565"],
+Cell[250194, 4193, 126, 0, 70, "Section",ExpressionUUID->"b34f77ec-a83e-4efc-824b-5143faaf4faf"],
+Cell[250323, 4195, 296, 5, 70, "Text",ExpressionUUID->"88342ca8-9ff8-4532-a6af-90d77b9011e3"],
+Cell[250622, 4202, 107279, 1774, 70, "Output",ExpressionUUID->"ba9b9e81-1095-4479-85e8-bf4b967255cc"],
+Cell[357904, 5978, 113, 0, 70, "Section",ExpressionUUID->"567d7905-e6df-47ec-8e03-4c80c4cce36f"],
+Cell[358020, 5980, 230, 3, 70, "Text",ExpressionUUID->"5f0662b8-47bc-45fc-90e5-37d21532f6ec"],
+Cell[358253, 5985, 87107, 1443, 70, "Output",ExpressionUUID->"447b89d0-12d1-4222-9106-e9b3454fe474"],
+Cell[445363, 7430, 157137, 2590, 70, "Output",ExpressionUUID->"b7cf0a87-68b7-4f3e-bdb8-96fa74c2788d"],
+Cell[602503, 10022, 528, 8, 70, "Text",ExpressionUUID->"a6fd36f7-e00a-427b-9e39-6185bf2d1eef"],
+Cell[603034, 10032, 94, 0, 70, "Section",ExpressionUUID->"bae893d4-94f3-4e50-89da-6eb566c0641f"],
+Cell[603131, 10034, 574, 11, 70, "Text",ExpressionUUID->"1feee09a-19e4-4d2b-ab52-876dc9e81df7"],
+Cell[603708, 10047, 57864, 964, 70, "Output",ExpressionUUID->"0e0c2563-6df4-4fc2-91ed-c06312b64ad1"],
+Cell[661575, 11013, 84, 0, 70, "Section",ExpressionUUID->"35a34f83-e2a3-4671-a909-7a7ea8b8c5ce"],
+Cell[661662, 11015, 613, 12, 70, "Text",ExpressionUUID->"cfdeec0d-ab5d-40b8-bfb2-1113d124d72b"],
+Cell[662278, 11029, 1714, 38, 70, "Output",ExpressionUUID->"c4200e7e-d077-42a2-9fe1-1c364d64938a"],
+Cell[663995, 11069, 1171, 23, 70, "Text",ExpressionUUID->"9dfef23e-0afc-4e2b-92cb-6d8576b74d48"],
+Cell[665169, 11094, 1005, 19, 70, "Text",ExpressionUUID->"7833cdef-ce24-4e95-a72a-dd7b7eb0d9a4"]
 }
 ]
 *)

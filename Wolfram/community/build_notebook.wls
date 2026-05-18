@@ -15,15 +15,40 @@ imgDir = hereDir;            (* gif / png live next to the script *)
 
 imgWidth = 680;
 
+(* GIF -> AnimatedImage helper, following the canonical Community recipe
+   (Marco's TrafficJAms post, https://community.wolfram.com/groups/-/m/t/3701293):
+   the Community server-side HTML pre-render only preserves AnimatedImage
+   as a looping <img>; ListAnimate / Manipulate get replaced by a static
+   screenshot. Subsample frames so the .nb stays small but the loop is
+   still smooth. *)
+$animFramesPerGif = <|
+  "sofa.gif"         -> 60,
+  "sweep.gif"        -> 50,
+  "sofa_3d.gif"      -> 40,
+  "sofa_3d_tilt.gif" -> 40
+|>;
+$animFrameRate = <|
+  "sofa.gif"         -> 12,
+  "sweep.gif"        -> 8,
+  "sofa_3d.gif"      -> 10,
+  "sofa_3d_tilt.gif" -> 10
+|>;
+
 loadImg[name_, width_:Automatic] := With[
   {p = FileNameJoin[{imgDir, name}], w = If[width === Automatic, imgWidth, width]},
   Which[
     ! FileExistsQ[p],
       Style["[missing image: " <> name <> "]", Red],
     ToLowerCase[FileExtension[p]] === "gif",
-      (* Import as a Wolfram AnimatedImage so it actually animates inline
-         instead of unrolling into a list of frames. *)
-      ImageResize[Import[p, "AnimatedImage"], w],
+      With[{frames = Import[p, {"GIF", "ImageList"}],
+            cap = Lookup[$animFramesPerGif, name, 40],
+            rate = Lookup[$animFrameRate, name, 10]},
+        With[{stride = Max[1, Ceiling[Length[frames] / cap]]},
+          AnimatedImage[
+            ImageResize[#, {w}] & /@ frames[[1 ;; -1 ;; stride]],
+            FrameRate -> rate,
+            AnimationRunning -> True,
+            AnimationRepetitions -> Infinity]]],
     True,
       Image[Import[p], ImageSize -> w]]];
 
@@ -610,8 +635,26 @@ Print[\"Trivial 3D lower bound  V = area x 1 = \", gerver2DArea];"],
 
   (* ====== Section 8: Summary tables ====== *)
   Cell["8. Summary tables", "Section"],
+  Cell["Three tables summarise what the notebook produced and how it sits in the literature: a 2D leaderboard, the 2D-vs-3D status, and the bend-angle sweep.", "Text"],
 
-  Cell["Table 1. 2D 90\[Degree] sofa benchmarks. The aisle is the same unit-width L-corridor across all rows; the sofa column shows the shape (or a representative shape for analytic bounds).", "Text"],
+  (* ---- Table 1 ---- *)
+  Cell["Table 1: 2D right-angle benchmarks", "Subsection"],
+  Cell[TextData[{
+    "A leaderboard for the classical 90\[Degree] L-corridor. Rows are ordered by area, low to high, and the aisle is the same unit-width L throughout \[LongDash] only the sofa changes. ",
+    "The first two rows (",
+    StyleBox["unit square", FontSlant -> Italic], ", ",
+    StyleBox["unit half-disk", FontSlant -> Italic],
+    ") are trivial lower bounds anyone can verify by inspection. The ",
+    StyleBox["hand-tuned", FontSlant -> Italic],
+    " row is what you get from a three-parameter family (\[Section]3) before any real optimisation \[LongDash] about 96\[ThinSpace]% of optimal, but visibly suboptimal. ",
+    StyleBox["Hammersley's 1968 sofa", FontSlant -> Italic],
+    " is the analytic landmark: a rectangle with a semicircular notch, area ",
+    mathI[RowBox[{"\[Pi]","/","2","+",RowBox[{"2","/","\[Pi]"}]}]],
+    ". The two rows in bold are this notebook's outputs (Python and Wolfram, \[Section]\[Section]4\[Dash]5); both clear Hammersley and reach Gerver-class numbers to four decimals. ",
+    StyleBox["Gerver 1992 / Baek 2024", FontSlant -> Italic],
+    " is the proved optimum: lower bound from Gerver's explicit 18-arc construction, matching upper bound from Baek's recent proof. The last row, ",
+    StyleBox["Kallus\[Dash]Romik 2018", FontSlant -> Italic],
+    ", is the best machine-checked upper bound before Baek; it sits 7\[ThinSpace]% above Gerver and is now historical, but it shows how narrow the analytic envelope around the truth has been for years."}], "Text"],
   Cell[BoxData[ToBoxes[
     Grid[{
       {Style["shape", Bold], Style["sofa", Bold], Style["area", Bold], Style["source", Bold]},
@@ -626,19 +669,55 @@ Print[\"Trivial 3D lower bound  V = area x 1 = \", gerver2DArea];"],
      Frame -> All, Alignment -> {Left, Center, Center, Left},
      Background -> {None, {1 -> LightGray}}]]],
    "Output", ShowCellLabel -> False],
+  Cell[TextData[{
+    StyleBox["Reading the table.", FontWeight -> Bold],
+    " The Python optimiser overshoots the proven optimum by ",
+    mathI[RowBox[{"1.5","\[Times]","10"^"-4"}]],
+    " and the Wolfram optimiser by ",
+    mathI[RowBox[{"2.4","\[Times]","10"^"-3"}]],
+    " \[LongDash] both are discretisation noise from the finite \[Theta] eval grid, not real area. The takeaway: a 20-parameter cubic-spline trajectory plus Nelder\[Dash]Mead is enough to reach the analytic optimum to four decimals; the remaining gap to Gerver requires either far more parameters or his analytic 18-arc construction."}],
+    "Text"],
 
-  Cell["Table 2. 90\[Degree] L-corridor in dimensions 2 and 3.", "Text"],
+  (* ---- Table 2 ---- *)
+  Cell["Table 2: 2D vs 3D status", "Subsection"],
+  Cell[TextData[{
+    "Where does the right-angle problem stand in higher dimensions? In 2D the situation has been closed since Baek 2024: Gerver's explicit construction is the lower bound and Baek's proof gives a matching upper bound. In 3D essentially nothing is closed. ",
+    "For the ",
+    StyleBox["square tube", FontSlant -> Italic],
+    " (unit-square cross-section), trivially extruding any 2D sofa gives the same area times height, so any number ",
+    mathI[RowBox[{"\[GreaterEqual]","2.21953"}]],
+    " is a lower bound; the only upper bound in folklore is the inscribed-prism argument, very roughly ",
+    mathI["3"],
+    ". Nothing tight is known. For the ",
+    StyleBox["circular tube", FontSlant -> Italic],
+    " (unit-diameter disk cross-section) the situation is worse: the cross-section width itself varies with height, so even the slice-by-slice upper bound (treated numerically in our companion notebook \"Beyond Gerver\", \[Section]2) is well below 2.22, with a best prismatic body of volume \[TildeTilde] 1.17. The column \"status\" is shorthand for \"do we have matching bounds?\"."}], "Text"],
   Cell[BoxData[ToBoxes[
     Grid[{
-      {"dimension", "lower bound", "upper bound", "status"},
+      {Style["dimension", Bold], Style["lower bound", Bold], Style["upper bound", Bold], Style["status", Bold]},
       {"2D (square corridor)", "2.21953... (Gerver)", "2.21953... (Baek)", "proved optimal"},
       {"3D (square tube)", "\[GreaterEqual] 2.21953 (extrude)", "\[Tilde] 3 (folklore)", "essentially open"},
-      {"3D (circular tube)", "\[GreaterEqual] \[Pi]/4 \[Times] (best disk sofa)", "open", "open"}},
+      {"3D (circular tube)", "\[GreaterEqual] 1.17 (prism, \[Section] companion)", "\[LessEqual] 1.81 (slice bound, companion)", "open"}},
       Frame -> All, ItemSize -> {18, 18, 18, 16},
       Background -> {None, {1 -> LightGray}}]]],
     "Output", ShowCellLabel -> False],
+  Cell[TextData[{
+    StyleBox["Reading the table.", FontWeight -> Bold],
+    " The jump from 2D-closed to 3D-open is dramatic: a 56-year analytical effort closed the planar question, but the 3D version doesn't even have matching constructive/upper bounds with the same first digit. The cross-section shape matters a lot \[LongDash] square corners help, because they let the body fill the corridor's full vertical clearance regardless of horizontal position. Both 3D rows are therefore interesting open problems on their own, not just \"the obvious extension\"."}],
+    "Text"],
 
-  Cell["Table 3. Optimised area at varying bend angle \[Alpha] (this notebook). Each run uses the previous \[Alpha] anchor as a warm-start \[LongDash] without it Nelder\[Dash]Mead easily gets trapped at large \[Alpha].", "Text"],
+  (* ---- Table 3 ---- *)
+  Cell["Table 3: bend-angle sweep", "Subsection"],
+  Cell[TextData[{
+    "The same Nelder\[Dash]Mead optimiser run at seven anchor angles ",
+    mathI["\[Alpha]"], " \[Element] [60\[Degree], 150\[Degree]], with the corridor's interior angle replacing the classical \[Pi]/2. The literature on non-right-angle bends is essentially empty (Hammersley, Gerver, Romik, Kallus\[Dash]Romik, and Baek all work at ",
+    mathI[RowBox[{"\[Alpha]","=",RowBox[{"\[Pi]","/","2"}]}]],
+    "), so this is one of the more genuinely uncharted parts of the notebook. The ",
+    StyleBox["aisle", FontSlant -> Italic],
+    " column shows the corridor at each bend angle (the inner corner is marked); the ",
+    StyleBox["sofa", FontSlant -> Italic],
+    " column is the optimised shape at the same scale across rows so widths are comparable; the ",
+    StyleBox["area", FontSlant -> Italic],
+    " is the honest area on a 400-\[Theta] evaluation grid."}], "Text"],
   Cell[BoxData[ToBoxes[
     Grid[{
       {Style["\[Alpha]", Bold], Style["aisle", Bold], Style["sofa", Bold], Style["area", Bold], Style["notes", Bold]},
@@ -652,9 +731,19 @@ Print[\"Trivial 3D lower bound  V = area x 1 = \", gerver2DArea];"],
       Frame -> All, Alignment -> {Center, Center, Center, Center, Left},
       Background -> {None, {1 -> LightGray}}]]],
     "Output", ShowCellLabel -> False],
-
   Cell[TextData[{
-    "The area ", mathI[RowBox[{"S","(","\[Alpha]",")"}]], " grows monotonically with \[Alpha] across (0, \[Pi]). It diverges as ", mathI[RowBox[{"\[Alpha]","\[Rule]","\[Pi]"}]], " (the corridor straightens into an infinite strip) and shrinks as ", mathI[RowBox[{"\[Alpha]","\[Rule]","0"}]], " (the corridor folds back). A warm-start cascade is essential at the high-\[Alpha] end: cold Nelder\[Dash]Mead from the Hammersley quarter-arc seed converges to a poor thin-strip local optimum at 150\[Degree], while warm-starting from the 135\[Degree] anchor produces the much larger sofa above."}], "Text"],
+    StyleBox["Reading the table.", FontWeight -> Bold],
+    " Three things stand out. ",
+    StyleBox["(i)", FontWeight -> Bold],
+    " ", mathI[RowBox[{"S","(","\[Alpha]",")"}]], " grows monotonically with \[Alpha] \[LongDash] a wider bend is a looser constraint, more shape can squeeze through. ",
+    StyleBox["(ii)", FontWeight -> Bold],
+    " It diverges as ", mathI[RowBox[{"\[Alpha]","\[Rule]","\[Pi]"}]], " (the corridor straightens into an infinite strip and the optimal sofa is unbounded); the dashed ",
+    mathI[RowBox[{"C","/","(","\[Pi]","-","\[Alpha]",")"}]],
+    " curve in Figure 3 fits this divergence to within plotting accuracy. ",
+    StyleBox["(iii)", FontWeight -> Bold],
+    " At high \[Alpha], a warm-start cascade is not optional: cold Nelder\[Dash]Mead from the Hammersley quarter-arc seed converges to a poor thin-strip local optimum at 150\[Degree] (area \[TildeTilde] 2.0), while warm-starting from the 135\[Degree] anchor reaches 5.20 \[LongDash] a 2.6\[Times] factor that is purely a numerical-conditioning artefact, not geometry. ",
+    StyleBox["Caveat:", FontWeight -> Bold],
+    " these are best-of-N runs within a fixed iteration budget, not analytic claims; without literature anchors they should be read as numerical evidence, not theorems."}], "Text"],
 
   (* ====== References ====== *)
   Cell["References", "Section"],
