@@ -677,9 +677,9 @@ Print[\"Trivial 3D lower bound  V = area x 1 = \", gerver2DArea];"],
   Cell[TextData[{
     StyleBox["Reading the table.", FontWeight -> Bold],
     " The Python optimiser overshoots the proven optimum by ",
-    mathI[RowBox[{"1.5","\[Times]","10"^"-4"}]],
+    mathI[RowBox[{"1.5","\[Times]",SuperscriptBox["10","-4"]}]],
     " and the Wolfram optimiser by ",
-    mathI[RowBox[{"2.4","\[Times]","10"^"-3"}]],
+    mathI[RowBox[{"2.4","\[Times]",SuperscriptBox["10","-3"]}]],
     " \[LongDash] both are discretisation noise from the finite \[Theta] eval grid, not real area. The takeaway: a 20-parameter cubic-spline trajectory plus Nelder\[Dash]Mead is enough to reach the analytic optimum to four decimals; the remaining gap to Gerver requires either far more parameters or his analytic 18-arc construction."}],
     "Text"],
 
